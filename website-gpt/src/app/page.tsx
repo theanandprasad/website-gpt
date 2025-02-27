@@ -4,30 +4,44 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import UrlInputForm from '../components/UrlInputForm';
 
+interface ProcessedData {
+  title: string;
+  content: string;
+  chunks: string[];
+  metadata: Record<string, string>;
+  paragraphs: string[];
+}
+
 export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const handleUrlSubmit = async (url: string) => {
-    setIsLoading(true);
+  const handleUrlSubmit = async (url: string, processedData?: ProcessedData) => {
+    if (!processedData) {
+      setIsLoading(true);
+      // If we don't have processed data, the form will handle the processing
+      return;
+    }
     
     try {
-      // In a future phase, we'll implement the actual website scraping and processing
-      // For now, we'll just simulate a delay and redirect to a placeholder chat page
       console.log('Processing URL:', url);
+      console.log('Processed data:', processedData);
       
-      // Store the URL in localStorage for now (in a future phase, we'll use Supabase)
+      // Store the processed data in localStorage
       localStorage.setItem('lastProcessedUrl', url);
+      localStorage.setItem('websiteTitle', processedData.title);
+      localStorage.setItem('websiteContent', JSON.stringify({
+        content: processedData.content,
+        chunks: processedData.chunks,
+        metadata: processedData.metadata,
+        paragraphs: processedData.paragraphs
+      }));
       
-      // Simulate processing delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // In the future, we'll redirect to a chat page with the processed website
-      // For now, we'll just redirect to a placeholder page
+      // Redirect to the chat page with the processed website
       router.push(`/chat?url=${encodeURIComponent(url)}`);
     } catch (error) {
-      console.error('Error processing URL:', error);
-      // In a real app, we would show an error message to the user
+      console.error('Error handling processed data:', error);
+      // Show an error message to the user
     } finally {
       setIsLoading(false);
     }

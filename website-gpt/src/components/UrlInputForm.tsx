@@ -1,7 +1,8 @@
 import { useState } from 'react';
+import { validateAndNormalizeUrl } from '@/lib/url-validator';
 
 interface UrlInputFormProps {
-  onSubmit: (url: string) => void;
+  onSubmit: (url: string, processedData?: any) => void;
   isLoading?: boolean;
 }
 
@@ -9,15 +10,6 @@ export default function UrlInputForm({ onSubmit, isLoading = false }: UrlInputFo
   const [url, setUrl] = useState('');
   const [error, setError] = useState('');
   const [isValidating, setIsValidating] = useState(false);
-
-  const validateUrl = (input: string): boolean => {
-    try {
-      const parsedUrl = new URL(input);
-      return parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:';
-    } catch (_) {
-      return false;
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,37 +20,38 @@ export default function UrlInputForm({ onSubmit, isLoading = false }: UrlInputFo
       return;
     }
 
-    // Basic client-side validation
-    if (!validateUrl(url)) {
+    // Client-side validation
+    const normalizedUrl = validateAndNormalizeUrl(url.trim());
+    if (!normalizedUrl) {
       setError('Please enter a valid URL (e.g., https://example.com)');
       return;
     }
 
-    // Server-side validation
+    // Server-side processing
     try {
       setIsValidating(true);
-      const response = await fetch('/api/validate-url', {
+      const response = await fetch('/api/scrape', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ url }),
+        body: JSON.stringify({ url: normalizedUrl }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.error || 'Failed to validate URL');
+        setError(data.error || 'Failed to process URL');
         setIsValidating(false);
         return;
       }
 
       setIsValidating(false);
-      onSubmit(url);
+      onSubmit(normalizedUrl, data.data);
     } catch (error) {
-      setError('An error occurred while validating the URL');
+      setError('An error occurred while processing the URL');
       setIsValidating(false);
-      console.error('Error validating URL:', error);
+      console.error('Error processing URL:', error);
     }
   };
 
@@ -114,7 +107,7 @@ export default function UrlInputForm({ onSubmit, isLoading = false }: UrlInputFo
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     ></path>
                   </svg>
-                  {isValidating ? 'Validating...' : 'Processing...'}
+                  Processing...
                 </div>
               ) : (
                 'Analyze Website'
