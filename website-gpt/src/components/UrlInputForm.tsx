@@ -69,7 +69,7 @@ export default function UrlInputForm({ onSubmit, isLoading = false }: UrlInputFo
       <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
         <div className="flex flex-col md:flex-row md:space-x-4 w-full">
           <div className="flex-grow">
-            <label htmlFor="url-input" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="url-input" className="block text-sm font-medium text-gray-900 mb-1">
               Website URL
             </label>
             <input
@@ -78,7 +78,7 @@ export default function UrlInputForm({ onSubmit, isLoading = false }: UrlInputFo
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               placeholder="https://example.com"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary bg-white text-gray-900"
               disabled={currentlyLoading}
             />
           </div>
@@ -86,10 +86,10 @@ export default function UrlInputForm({ onSubmit, isLoading = false }: UrlInputFo
             <button
               type="submit"
               disabled={currentlyLoading}
-              className={`w-full md:w-auto px-6 py-3 rounded-lg font-medium text-white ${
+              className={`w-full md:w-auto px-6 py-3 rounded-lg font-bold ${
                 currentlyLoading
-                  ? 'bg-blue-400 cursor-not-allowed'
-                  : 'bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300'
+                  ? 'bg-gray-500 text-white cursor-not-allowed'
+                  : 'bg-gray-900 text-white hover:bg-gray-800 focus:ring-4 focus:ring-gray-500/30 shadow-md'
               } transition-colors`}
             >
               {currentlyLoading ? (
@@ -122,7 +122,7 @@ export default function UrlInputForm({ onSubmit, isLoading = false }: UrlInputFo
             </button>
           </div>
         </div>
-        {error && <p className="text-red-500 text-sm">{error}</p>}
+        {error && <p className="text-red-600 text-sm font-medium">{error}</p>}
       </form>
     </div>
   );

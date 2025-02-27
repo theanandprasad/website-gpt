@@ -2,9 +2,9 @@ export default function About() {
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="max-w-3xl mx-auto">
-        <h1 className="text-3xl md:text-4xl font-bold mb-8 text-center">About Website GPT</h1>
+        <h1 className="text-3xl md:text-4xl font-bold mb-8 text-center text-gray-900">About Website GPT</h1>
         
-        <div className="prose prose-lg max-w-none">
+        <div className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-800 prose-li:text-gray-800 prose-strong:text-gray-900 bg-card-bg border border-card-border rounded-xl shadow-sm p-8">
           <p className="mb-6">
             Website GPT is an innovative tool that allows users to interact with website content through
             natural language. Instead of spending time reading through entire websites, you can simply

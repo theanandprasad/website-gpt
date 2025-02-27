@@ -4,7 +4,7 @@ export default function Footer() {
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div className="mb-4 md:mb-0">
-            <p className="text-gray-600 text-sm">
+            <p className="text-gray-800 text-sm">
               &copy; {new Date().getFullYear()} Website GPT. All rights reserved.
             </p>
           </div>
@@ -13,7 +13,7 @@ export default function Footer() {
               href="https://github.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-500 hover:text-blue-600 transition-colors"
+              className="text-gray-800 hover:text-primary transition-colors"
             >
               <svg
                 className="h-5 w-5"
@@ -32,7 +32,7 @@ export default function Footer() {
               href="https://twitter.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-500 hover:text-blue-600 transition-colors"
+              className="text-gray-800 hover:text-primary transition-colors"
             >
               <svg
                 className="h-5 w-5"
