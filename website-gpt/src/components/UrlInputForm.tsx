@@ -8,6 +8,7 @@ interface UrlInputFormProps {
 
 export default function UrlInputForm({ onSubmit, isLoading = false }: UrlInputFormProps) {
   const [url, setUrl] = useState('');
+  const [depth, setDepth] = useState(1); // Default depth is 1
   const [error, setError] = useState('');
   const [isValidating, setIsValidating] = useState(false);
 
@@ -35,7 +36,10 @@ export default function UrlInputForm({ onSubmit, isLoading = false }: UrlInputFo
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ url: normalizedUrl }),
+        body: JSON.stringify({ 
+          url: normalizedUrl,
+          depth: depth 
+        }),
       });
 
       const data = await response.json();
@@ -75,6 +79,25 @@ export default function UrlInputForm({ onSubmit, isLoading = false }: UrlInputFo
               disabled={currentlyLoading}
             />
           </div>
+          
+          <div className="md:w-1/4">
+            <label htmlFor="depth-select" className="block text-sm font-medium text-gray-900 mb-1">
+              Crawl Depth
+            </label>
+            <select
+              id="depth-select"
+              value={depth}
+              onChange={(e) => setDepth(Number(e.target.value))}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary bg-white text-gray-900"
+              disabled={currentlyLoading}
+            >
+              <option value="0">Just this page</option>
+              <option value="1">One level deep</option>
+              <option value="2">Two levels deep</option>
+              <option value="3">Three levels deep</option>
+            </select>
+          </div>
+          
           <div className="md:self-end mt-4 md:mt-0">
             <button
               type="submit"
@@ -116,6 +139,13 @@ export default function UrlInputForm({ onSubmit, isLoading = false }: UrlInputFo
           </div>
         </div>
         {error && <p className="text-red-600 text-sm font-medium">{error}</p>}
+        
+        <div className="text-sm text-gray-600 mt-2">
+          <p>
+            <strong>Crawl Depth:</strong> Higher depth values will analyze more pages but take longer to process.
+            {depth > 1 && " For large websites, this may take several minutes."}
+          </p>
+        </div>
       </form>
     </div>
   );

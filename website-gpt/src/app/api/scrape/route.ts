@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
   try {
     // Parse the request body
     const body = await request.json();
-    const { url } = body;
+    const { url, depth = 1 } = body;  // Default depth is 1 (crawl one level deep)
 
     // Validate the URL
     if (!url) {
@@ -28,8 +28,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Process the URL and extract content
-    const { title, content, chunks, metadata, paragraphs } = await processUrl(normalizedUrl);
+    // Validate depth parameter
+    const maxDepth = Math.min(Math.max(parseInt(String(depth), 10) || 1, 0), 3);  // Limit depth between 0 and 3
+
+    // Process the URL and extract content with depth-based crawling
+    const { title, content, chunks, metadata, paragraphs, crawledUrls } = await processUrl(
+      normalizedUrl,
+      maxDepth
+    );
 
     // Process the content for embedding
     const processedContent = processContent(normalizedUrl, title, content, metadata);
@@ -60,6 +66,9 @@ export async function POST(request: NextRequest) {
         metadata,
         paragraphs,
         processedChunks: processedContent.chunks.length,
+        crawledUrls,
+        crawlDepth: maxDepth,
+        pagesProcessed: crawledUrls?.length || 1
       },
     });
   } catch (error) {

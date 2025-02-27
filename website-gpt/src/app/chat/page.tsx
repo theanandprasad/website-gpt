@@ -9,6 +9,9 @@ interface WebsiteContent {
   chunks: string[];
   metadata: Record<string, string>;
   paragraphs: string[];
+  crawledUrls?: string[];
+  crawlDepth?: number;
+  pagesProcessed?: number;
 }
 
 interface Message {
@@ -92,8 +95,8 @@ function ChatContent() {
     setIsProcessing(true);
     
     try {
-      // Query the API with the user's message
-      const response = await fetch('/api/query', {
+      // First, get the relevant chunks from the query API
+      const queryResponse = await fetch('/api/query', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -104,22 +107,63 @@ function ChatContent() {
         }),
       });
       
-      const data = await response.json();
+      const queryData = await queryResponse.json();
       
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to process query');
+      if (!queryResponse.ok) {
+        throw new Error(queryData.error || 'Failed to process query');
       }
       
-      // For now, just display the context as the system response
-      // In the future, this will be the LLM's response
-      const systemMessage: Message = {
-        id: `system-${Date.now()}`,
-        role: 'system',
-        content: `Here's what I found:\n\n${data.context}`,
-        timestamp: new Date(),
-      };
-      
-      setMessages(prev => [...prev, systemMessage]);
+      // Then, try to get an AI-generated answer from the chat API
+      try {
+        const chatResponse = await fetch('/api/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            query: userMessage.content,
+            url: url,
+            context: queryData.context,
+            relevantChunks: queryData.relevantChunks
+          }),
+        });
+        
+        const chatData = await chatResponse.json();
+        
+        if (chatResponse.ok && chatData.answer) {
+          // If chat API succeeded, use its answer
+          const systemMessage: Message = {
+            id: `system-${Date.now()}`,
+            role: 'system',
+            content: chatData.answer,
+            timestamp: new Date(),
+          };
+          
+          setMessages(prev => [...prev, systemMessage]);
+        } else {
+          // If chat API failed, fall back to using the context from query API
+          const systemMessage: Message = {
+            id: `system-${Date.now()}`,
+            role: 'system',
+            content: `Here's what I found:\n\n${queryData.context}`,
+            timestamp: new Date(),
+          };
+          
+          setMessages(prev => [...prev, systemMessage]);
+        }
+      } catch (error) {
+        // If chat API errors, fall back to using the context from query API
+        console.error('Error calling chat API:', error);
+        
+        const systemMessage: Message = {
+          id: `system-${Date.now()}`,
+          role: 'system',
+          content: `Here's what I found:\n\n${queryData.context}`,
+          timestamp: new Date(),
+        };
+        
+        setMessages(prev => [...prev, systemMessage]);
+      }
     } catch (error) {
       console.error('Error querying API:', error);
       
@@ -180,6 +224,18 @@ function ChatContent() {
         {websiteContent.metadata && websiteContent.metadata.description && (
           <div className="mt-4 text-gray-700">
             <p>{websiteContent.metadata.description}</p>
+          </div>
+        )}
+        
+        {/* Display crawl information if available */}
+        {websiteContent.pagesProcessed && websiteContent.pagesProcessed > 1 && (
+          <div className="mt-4 text-gray-700 text-sm">
+            <p>
+              <span className="font-medium">Pages analyzed:</span> {websiteContent.pagesProcessed}
+              {websiteContent.crawlDepth !== undefined && (
+                <span> (Depth: {websiteContent.crawlDepth})</span>
+              )}
+            </p>
           </div>
         )}
       </div>

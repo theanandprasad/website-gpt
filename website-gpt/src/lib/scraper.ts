@@ -177,17 +177,69 @@ export function extractMetadata(html: string): Record<string, string> {
 }
 
 /**
- * Processes a URL and extracts content
+ * Extracts links from HTML that belong to the same domain
+ * @param html The HTML content
+ * @param baseUrl The base URL for resolving relative links
+ * @returns An array of absolute URLs
+ */
+export function extractLinks(html: string, baseUrl: string): string[] {
+  const $ = cheerio.load(html);
+  const links: Set<string> = new Set();
+  const baseUrlObj = new URL(baseUrl);
+  const baseDomain = baseUrlObj.hostname;
+  
+  $('a').each((_, element) => {
+    const href = $(element).attr('href');
+    if (href) {
+      try {
+        // Convert relative URLs to absolute
+        const absoluteUrl = new URL(href, baseUrl).toString();
+        const linkUrl = new URL(absoluteUrl);
+        
+        // Only include links from the same domain and with http/https protocol
+        if (linkUrl.hostname === baseDomain && 
+            (linkUrl.protocol === 'http:' || linkUrl.protocol === 'https:') &&
+            !linkUrl.pathname.includes('#') && // Exclude anchor links
+            !linkUrl.pathname.endsWith('.pdf') && // Exclude PDFs
+            !linkUrl.pathname.endsWith('.jpg') && // Exclude images
+            !linkUrl.pathname.endsWith('.png') && 
+            !linkUrl.pathname.endsWith('.gif') &&
+            !linkUrl.pathname.endsWith('.svg')) {
+          links.add(absoluteUrl);
+        }
+      } catch (error) {
+        // Ignore invalid URLs
+      }
+    }
+  });
+  
+  return Array.from(links);
+}
+
+/**
+ * Processes a URL and extracts content with optional depth-based crawling
  * @param url The URL to process
+ * @param maxDepth Maximum depth for crawling (0 means only the initial URL)
+ * @param currentDepth Current depth in the crawling process
+ * @param visitedUrls Set of already visited URLs to avoid duplicates
  * @returns An object containing the processed content
  */
-export async function processUrl(url: string): Promise<{
+export async function processUrl(
+  url: string,
+  maxDepth: number = 0,
+  currentDepth: number = 0,
+  visitedUrls: Set<string> = new Set()
+): Promise<{
   title: string;
   content: string;
   chunks: string[];
   metadata: Record<string, string>;
   paragraphs: string[];
+  crawledUrls?: string[];
 }> {
+  // Mark this URL as visited
+  visitedUrls.add(url);
+  
   const html = await fetchHtml(url);
   const title = extractTitle(html);
   const content = extractMainContent(html);
@@ -195,11 +247,48 @@ export async function processUrl(url: string): Promise<{
   const metadata = extractMetadata(html);
   const paragraphs = extractParagraphs(html);
   
+  // If we've reached the maximum depth, don't crawl further
+  if (currentDepth >= maxDepth) {
+    return {
+      title,
+      content,
+      chunks,
+      metadata,
+      paragraphs,
+      crawledUrls: Array.from(visitedUrls)
+    };
+  }
+  
+  // Extract links for further crawling
+  const links = extractLinks(html, url);
+  let allContent = content;
+  let allChunks = [...chunks];
+  let allParagraphs = [...paragraphs];
+  
+  // Crawl each link that hasn't been visited yet
+  for (const link of links) {
+    if (!visitedUrls.has(link) && visitedUrls.size < 20) { // Limit to 20 pages to prevent excessive crawling
+      try {
+        console.log(`Crawling: ${link} (Depth: ${currentDepth + 1}/${maxDepth})`);
+        const result = await processUrl(link, maxDepth, currentDepth + 1, visitedUrls);
+        
+        // Combine content from this page with the main content
+        allContent += '\n\n' + result.content;
+        allChunks = [...allChunks, ...result.chunks];
+        allParagraphs = [...allParagraphs, ...result.paragraphs];
+      } catch (error) {
+        console.error(`Error crawling ${link}:`, error);
+        // Continue with other links even if one fails
+      }
+    }
+  }
+  
   return {
     title,
-    content,
-    chunks,
+    content: allContent,
+    chunks: allChunks,
     metadata,
-    paragraphs,
+    paragraphs: allParagraphs,
+    crawledUrls: Array.from(visitedUrls)
   };
 } 

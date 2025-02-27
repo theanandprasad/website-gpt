@@ -126,18 +126,33 @@ export function getRelevantChunks(
   // This is a placeholder for semantic search
   // In a real implementation, this would use vector similarity search
   
-  // For now, just return a simple keyword match
-  const queryTerms = query.toLowerCase().split(/\s+/);
+  // Improved keyword matching algorithm
+  const queryTerms = query.toLowerCase().split(/\s+/).filter(term => term.length > 2);
   
   const scoredChunks = chunks.map(chunk => {
     const content = chunk.content.toLowerCase();
     let score = 0;
     
+    // Score exact phrase match higher
+    if (content.includes(query.toLowerCase())) {
+      score += 10;
+    }
+    
+    // Score individual term matches
     for (const term of queryTerms) {
-      if (content.includes(term)) {
+      // Count occurrences of the term
+      const regex = new RegExp(`\\b${term}\\b`, 'gi');
+      const matches = content.match(regex);
+      if (matches) {
+        score += matches.length * 2;
+      } else if (content.includes(term)) {
+        // Partial match
         score += 1;
       }
     }
+    
+    // Boost score for chunks with higher term density
+    score = score / (1 + Math.log(content.length / 500));
     
     return { chunk, score };
   });

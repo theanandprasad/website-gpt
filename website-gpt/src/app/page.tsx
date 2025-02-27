@@ -10,6 +10,9 @@ interface ProcessedData {
   chunks: string[];
   metadata: Record<string, string>;
   paragraphs: string[];
+  crawledUrls?: string[];
+  crawlDepth?: number;
+  pagesProcessed?: number;
 }
 
 export default function Home() {
@@ -34,7 +37,10 @@ export default function Home() {
         content: processedData.content,
         chunks: processedData.chunks,
         metadata: processedData.metadata,
-        paragraphs: processedData.paragraphs
+        paragraphs: processedData.paragraphs,
+        crawledUrls: processedData.crawledUrls,
+        crawlDepth: processedData.crawlDepth,
+        pagesProcessed: processedData.pagesProcessed
       }));
       
       // Redirect to the chat page with the processed website
