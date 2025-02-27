@@ -22,6 +22,44 @@ const config: Config = {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
       },
+      typography: {
+        DEFAULT: {
+          css: {
+            maxWidth: 'none',
+            code: {
+              backgroundColor: 'var(--secondary)',
+              padding: '0.2em 0.4em',
+              borderRadius: '0.25rem',
+              fontWeight: '400',
+              fontFamily: 'var(--font-geist-mono)',
+            },
+            'code::before': {
+              content: '""',
+            },
+            'code::after': {
+              content: '""',
+            },
+            pre: {
+              backgroundColor: '#1e293b',
+              color: '#e2e8f0',
+              borderRadius: '0.5rem',
+              padding: '1rem',
+              fontFamily: 'var(--font-geist-mono)',
+            },
+            'pre code': {
+              backgroundColor: 'transparent',
+              padding: 0,
+            },
+            a: {
+              color: 'var(--primary)',
+              textDecoration: 'none',
+              '&:hover': {
+                textDecoration: 'underline',
+              },
+            },
+          },
+        },
+      },
     },
   },
   plugins: [require('@tailwindcss/typography')],

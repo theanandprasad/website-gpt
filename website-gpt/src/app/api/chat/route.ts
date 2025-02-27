@@ -42,6 +42,7 @@ export async function POST(request: Request) {
                 role: 'system',
                 content: `You are a helpful assistant that answers questions about website content. 
                 Use ONLY the following context to answer the question. If you don't know the answer based on the context, say so.
+                Format your response using markdown for better readability. Use headings, lists, code blocks, and other markdown features as appropriate.
                 Context: ${context}`,
               },
               {
@@ -157,6 +158,7 @@ export async function POST(request: Request) {
                 role: 'system',
                 content: `You are a helpful assistant that answers questions about website content. 
                 Use ONLY the following context to answer the question. If you don't know the answer based on the context, say so.
+                Format your response using markdown for better readability. Use headings, lists, code blocks, and other markdown features as appropriate.
                 Context: ${storeContext}`,
               },
               {
@@ -221,6 +223,7 @@ export async function POST(request: Request) {
               content: `You are a helpful assistant that answers questions about websites. 
               The user is asking about a website, but we don't have specific content from it yet.
               ${websiteInfo}
+              Format your response using markdown for better readability.
               Please suggest that they try scraping the website first using the "Analyze Website" button on the home page.`,
             },
             {

@@ -16,6 +16,9 @@
   --muted: #64748b;
   --card-bg: #ffffff;
   --card-border: #cbd5e1;
+  --code-bg: #f1f5f9;
+  --code-block-bg: #1e293b;
+  --code-block-text: #e2e8f0;
 }
 
 /* Force light mode regardless of system preference */
@@ -31,6 +34,9 @@
     --muted: #64748b;
     --card-bg: #ffffff;
     --card-border: #cbd5e1;
+    --code-bg: #f1f5f9;
+    --code-block-bg: #1e293b;
+    --code-block-text: #e2e8f0;
   }
 }
 
@@ -38,4 +44,60 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family: var(--font-sans);
+}
+
+/* Custom styles for markdown code blocks */
+.prose code {
+  background-color: var(--code-bg);
+  border-radius: 0.25rem;
+  padding: 0.2em 0.4em;
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+}
+
+.prose pre {
+  background-color: var(--code-block-bg);
+  color: var(--code-block-text);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+.prose pre code {
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
+  color: inherit;
+}
+
+/* Remove quotation marks from inline code */
+.prose code::before,
+.prose code::after {
+  content: "";
+}
+
+/* Improve table styling */
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1em 0;
+}
+
+.prose th {
+  background-color: var(--secondary);
+  font-weight: 600;
+}
+
+.prose th,
+.prose td {
+  padding: 0.5em;
+  border: 1px solid var(--card-border);
+}
+
+/* Improve blockquote styling */
+.prose blockquote {
+  border-left: 4px solid var(--primary);
+  padding-left: 1em;
+  font-style: italic;
+  color: var(--muted);
 }

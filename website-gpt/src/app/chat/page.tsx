@@ -3,6 +3,8 @@
 import { useEffect, useState, Suspense, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface WebsiteContent {
   content: string;
@@ -67,7 +69,7 @@ function ChatContent() {
       {
         id: 'welcome',
         role: 'system',
-        content: 'Welcome! Ask me anything about this website.',
+        content: '## Welcome! \n\nAsk me anything about this website.',
         timestamp: new Date(),
       },
     ]);
@@ -145,7 +147,7 @@ function ChatContent() {
           const systemMessage: Message = {
             id: `system-${Date.now()}`,
             role: 'system',
-            content: `Here's what I found:\n\n${queryData.context}`,
+            content: `## Here's what I found:\n\n${queryData.context}`,
             timestamp: new Date(),
           };
           
@@ -158,7 +160,7 @@ function ChatContent() {
         const systemMessage: Message = {
           id: `system-${Date.now()}`,
           role: 'system',
-          content: `Here's what I found:\n\n${queryData.context}`,
+          content: `## Here's what I found:\n\n${queryData.context}`,
           timestamp: new Date(),
         };
         
@@ -170,7 +172,7 @@ function ChatContent() {
       const errorMessage: Message = {
         id: `system-error-${Date.now()}`,
         role: 'system',
-        content: 'Sorry, I encountered an error while processing your query. Please try again.',
+        content: '## Error\n\nSorry, I encountered an error while processing your query. Please try again.',
         timestamp: new Date(),
       };
       
@@ -251,7 +253,7 @@ function ChatContent() {
           </Link>
         </div>
         
-        <div className="bg-secondary rounded-lg p-6 mb-6 h-[400px] overflow-y-auto border border-gray-200">
+        <div className="bg-secondary rounded-lg p-6 mb-6 h-[500px] overflow-y-auto border border-gray-200">
           <div className="space-y-4">
             {messages.map((message) => (
               <div
@@ -262,9 +264,15 @@ function ChatContent() {
                     : 'bg-white border border-gray-200 mr-12'
                 }`}
               >
-                <p className={message.role === 'user' ? 'text-white' : 'text-gray-800'}>
-                  {message.content}
-                </p>
+                {message.role === 'user' ? (
+                  <p className="text-white">{message.content}</p>
+                ) : (
+                  <div className="prose prose-sm max-w-none prose-headings:text-gray-900 prose-p:text-gray-800 prose-a:text-primary prose-code:text-gray-800 prose-pre:bg-gray-800 prose-pre:text-gray-100">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {message.content}
+                    </ReactMarkdown>
+                  </div>
+                )}
                 <p className={`text-xs mt-2 ${message.role === 'user' ? 'text-white/70' : 'text-gray-500'}`}>
                   {message.timestamp.toLocaleTimeString()}
                 </p>
