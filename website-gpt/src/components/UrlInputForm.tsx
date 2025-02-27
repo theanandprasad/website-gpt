@@ -14,7 +14,7 @@ export default function UrlInputForm({ onSubmit, isLoading = false }: UrlInputFo
     try {
       const parsedUrl = new URL(input);
       return parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:';
-    } catch (e) {
+    } catch (_) {
       return false;
     }
   };

@@ -70,7 +70,7 @@ export default function Home() {
           </div>
           <h3 className="text-xl font-semibold mb-2">Contextual Answers</h3>
           <p className="text-gray-600">
-            Get answers that take into account the full context of the website's content.
+            Get answers that take into account the full context of the website&apos;s content.
           </p>
         </div>
 

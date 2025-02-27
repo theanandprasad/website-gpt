@@ -8,7 +8,7 @@ export default function About() {
           <p className="mb-6">
             Website GPT is an innovative tool that allows users to interact with website content through
             natural language. Instead of spending time reading through entire websites, you can simply
-            ask questions and get accurate answers based on the website's content.
+            ask questions and get accurate answers based on the website&apos;s content.
           </p>
           
           <h2 className="text-2xl font-semibold mt-8 mb-4">How It Works</h2>
@@ -23,7 +23,7 @@ export default function About() {
               <strong>Ask Questions:</strong> Use the chat interface to ask any questions about the website content.
             </li>
             <li>
-              <strong>Get Answers:</strong> Receive accurate, contextual answers based on the website's information.
+              <strong>Get Answers:</strong> Receive accurate, contextual answers based on the website&apos;s information.
             </li>
           </ol>
           
